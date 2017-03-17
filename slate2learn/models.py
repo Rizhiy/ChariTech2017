@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 # Create your models here.
@@ -6,6 +8,16 @@ from decimal import Decimal
 
 class Centre(models.Model):
     id = models.AutoField(primary_key=True)
+    
+    def income(self, end_date=None, start_date=None, time_delta=datetime.timedelta(days=30)):
+        if end_date is None:
+            end_date = datetime.date.today()
+        if start_date is None:
+            start_date = end_date - time_delta
+            
+        transactions = Transaction.objects.all().filter(learner__centre__id=self.id,
+                                                  timestamp__range=['{:%Y-%m-%d}'.format(start_date), '{:%Y-%m-%d}'.format(end_date)])   
+        return sum([transaction.amount for transaction in transactions])
 
 
 class Learner(models.Model):
