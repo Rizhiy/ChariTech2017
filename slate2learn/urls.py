@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import url, include
 
 from slate2learn import views
@@ -7,3 +8,9 @@ urlpatterns = [
     url(r'^repopulate/$', views.repopulate_db, name="repopulate"),
     url(r'^centre/(?P<pk>[0-9]+)/$', views.centre_view, name="centre")
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns

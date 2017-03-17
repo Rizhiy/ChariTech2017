@@ -19,6 +19,7 @@ def centre_view(request, pk):
     learners = centre.learner_set.all()
     context = {'centre': centre,
                'learners': learners,
+               'conversion': centre.get_conversion_rate(),
                'income': centre.get_income(),
                'active_students': centre.get_active_students(),
                'attrition': centre.get_attrition_rate(),

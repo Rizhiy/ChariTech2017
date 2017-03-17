@@ -29,7 +29,7 @@ class Centre(models.Model):
             start_date = end_date - time_delta
         learners = self.learner_set.all()
         return len([learner for learner in learners if (learner.get_current_credit() > 0) and
-                                    len(learner.experience_set.all().filter(recording_time__range=['{:%Y-%m-%d}'.format(start_date), '{:%Y-%m-%d}'.format(end_date)]))>0])
+                                    len(learner.experience_set.all().filter(recording_time__range=[start_date, end_date]))>0])
 
 
     def get_attrition_rate(self, end_date=None, time_period=datetime.timedelta(days=config.default_period_days)):
@@ -37,6 +37,21 @@ class Centre(models.Model):
             end_date = datetime.date.today()
         return -(self.get_active_students(end_date=end_date, time_delta=time_period) -\
                  self.get_active_students(end_date=end_date-time_period, time_delta=time_period))
+
+    def get_conversion_rate(self, end_date=None, start_date=None, time_delta=datetime.timedelta(days=config.default_period_days)):
+        #Number registered
+            #First session is registration
+        #transactions  = reversed(Transaction.objects.all().order_by('id', 'timestamp'))
+        #id_time = [(t.id, t.timestamp) for t in transactions]
+        
+        learners = self.learner_set.all().annotate(registration=models.Min('transaction__timestamp')).filter(registration__range=[start_date, end_date])
+
+        #Number who bought credit
+            #credits > 0
+        learners = [learner for learner in learners if len(Transaction.objects.all().filter(credits__gt=0, learner=learner))>0]
+        
+        return sum(learners)
+
         
 
 class Learner(models.Model):
@@ -56,7 +71,7 @@ class Learner(models.Model):
     mother_occupation = models.TextField(null=True)
 
     def get_current_credit(self):
-        transactions = Transaction.objects.all().filter(learner__id=self.id)
+        transactions = Transaction.objects.filter(learner__id=self.id)
         return sum([transaction.credits for transaction in transactions])
 
 
