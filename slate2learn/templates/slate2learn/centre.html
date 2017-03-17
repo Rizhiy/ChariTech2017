@@ -1,0 +1,11 @@
+{% extends base %}
+
+{% block content %}
+    Centre id: {{ centre.id }}
+    Learners:
+    <ul>
+        {% for learner in learners %}
+            <li>{{ learner.id }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

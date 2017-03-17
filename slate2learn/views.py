@@ -12,6 +12,14 @@ def profile(request, pk):
     return HttpResponse("Profile {}".format(pk))
 
 
+def centre_view(request, pk):
+    template = 'slate2learn/centre.html'
+    centre = Centre.objects.get(pk)
+    learners = centre.learner_set
+    context = {'centre': centre, 'learners': learners}
+    return render(request, template, context)
+
+
 def repopulate_db(request):
     Centre.objects.all().delete()
     Learner.objects.all().delete()

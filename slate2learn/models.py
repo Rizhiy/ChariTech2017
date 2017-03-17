@@ -31,7 +31,7 @@ class Learner(models.Model):
 
 class Experience(models.Model):
     id = models.BigAutoField(primary_key=True)
-    question = models.IntegerField(null=True)
+    question_id = models.IntegerField(null=True)
     learner = models.ForeignKey(Learner)
     score = models.IntegerField(null=True)
     answer_value = models.TextField(blank=True, null=True)
