@@ -45,7 +45,6 @@ class Transaction(models.Model):
     timestamp = models.DateTimeField()
     amount = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.00'))
     credits = models.DecimalField(max_digits=20, decimal_places=2, )
-    credit_balance = models.DecimalField(max_digits=20, decimal_places=2, )
 
 
 # class Session(models.Model):
