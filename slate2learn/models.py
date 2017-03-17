@@ -1,3 +1,4 @@
+import calendar
 import datetime
 
 from django.db import models
@@ -23,6 +24,24 @@ class Centre(models.Model):
                                                         timestamp__range=['{:%Y-%m-%d}'.format(start_date),
                                                                           '{:%Y-%m-%d}'.format(end_date)])
         return sum([transaction.amount for transaction in transactions])
+
+    def get_monthly_income(self):
+        year = datetime.datetime.today().year - 1
+        month = datetime.datetime.today().month
+        incomes = [['Month', 'Income']]
+        for i in range(0, 12):
+            next_year = year
+            if month == 12:
+                next_month = 1
+                next_year = year + 1
+            else:
+                next_month = month + 1
+            income = self.get_income(start_date=datetime.date(year=year, month=month, day=1),
+                                     end_date=datetime.date(year=next_year, month=next_month, day=1))
+            incomes.append(["{} {}".format(calendar.month_name[month], year), income])
+            year = next_year
+            month = next_month
+        return incomes
 
     def get_active_students(self, end_date=None, start_date=None,
                             time_delta=datetime.timedelta(days=config.default_period_days)):

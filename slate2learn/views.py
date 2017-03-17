@@ -23,11 +23,15 @@ def centre_view(request, pk):
     template = 'slate2learn/centre.html'
     centre = Centre.objects.get(pk=pk)
     learners = centre.learner_set.all()
+    monthly_income = centre.get_monthly_income()
+    data_source = SimpleDataSource(monthly_income)
+    income_chart = LineChart(data_source, options={'title': 'Monthly Income', 'legend': 'none','width':'100%'})
     context = {'centre': centre,
                'learners': learners,
                'income': centre.get_income(),
                'active_students': centre.get_active_students(),
                'attrition': centre.get_attrition_rate(),
+               'income_chart': income_chart
                }
     return render(request, template, context)
 
