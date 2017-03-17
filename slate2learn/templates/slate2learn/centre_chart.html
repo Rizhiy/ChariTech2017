@@ -1,0 +1,13 @@
+{% extends 'slate2learn/base.html' %}
+
+{% block content %}
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load("visualization", "1", {packages: ["corechart"]});
+    </script>
+
+    Centre id: {{ centre.id }}
+    Learners:
+    {{ new_learners|length }}
+    {{ chart.as_html }}
+{% endblock %}

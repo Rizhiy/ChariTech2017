@@ -1,11 +1,11 @@
-{% extends base %}
+{% extends 'slate2learn/base.html' %}
 
 {% block content %}
     Centre id: {{ centre.id }}
     Learners:
     <ul>
         {% for learner in learners %}
-            <li>{{ learner.id }}</li>
+            <li>{{ learner }}</li>
         {% endfor %}
     </ul>
 {% endblock %}

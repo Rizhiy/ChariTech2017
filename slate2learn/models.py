@@ -7,6 +7,12 @@ from decimal import Decimal
 class Centre(models.Model):
     id = models.AutoField(primary_key=True)
 
+    def num_of_students(self):
+        return len(self.learner_set.all())
+
+    def str_id(self):
+        return str(self.id)
+
 
 class Learner(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -24,6 +30,9 @@ class Learner(models.Model):
     father_occupation = models.TextField(null=True)
     mother_occupation = models.TextField(null=True)
 
+    def __str__(self):
+        return "ID: {}, Gender: {}, DoB: {}".format(self.id, self.gender, self.date_of_birth)
+
 
 class Experience(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -35,13 +44,13 @@ class Experience(models.Model):
     latency = models.IntegerField(null=True)
     recording_time = models.DateTimeField(null=True)
 
+
 class Transaction(models.Model):
     id = models.BigAutoField(primary_key=True)
     learner = models.ForeignKey(Learner)
     timestamp = models.DateTimeField()
     amount = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.00'))
     credits = models.DecimalField(max_digits=20, decimal_places=2, )
-
 
 # class Session(models.Model):
 #     id = models.AutoField(primary_key=True)

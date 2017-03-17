@@ -1,6 +1,12 @@
+import calendar
+import datetime
+
 from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from graphos.renderers.gchart import BarChart, LineChart, ColumnChart, PieChart
+from graphos.sources.model import ModelDataSource
+from graphos.sources.simple import SimpleDataSource
 
 from slate2learn import EXPERIENCES, LEARNERS, TRANSACTIONS
 from .models import Learner, Experience, Centre, Transaction
@@ -15,10 +21,45 @@ def profile(request, pk):
 
 def centre_view(request, pk):
     template = 'slate2learn/centre.html'
-    centre = Centre.objects.get(pk)
-    learners = centre.learner_set
+    centre = Centre.objects.get(pk=pk)
+    learners = centre.learner_set.all()
     context = {'centre': centre, 'learners': learners}
     return render(request, template, context)
+
+
+def centre_learners(request):
+    template = 'slate2learn/centre_chart.html'
+    data_source = ModelDataSource(Centre.objects.all(), fields=['str_id', 'num_of_students'])
+    chart = PieChart(data_source)
+    context = {'chart': chart}
+    return render(request, template, context)
+
+
+def centre_join_rate(request, pk):
+    template = 'slate2learn/centre_chart.html'
+    year = datetime.datetime.today().year - 1
+    month = datetime.datetime.today().month
+    learners = [['Month', 'Number Of New Learners']]
+    for i in range(0, 12):
+        new_learners = len(centre_new_learners_in_month(pk, year, month))
+        learners.append(["{} {}".format(calendar.month_name[month], year), new_learners])
+        if month == 12:
+            month = 1
+            year += 1
+        else:
+            month += 1
+    data_source = SimpleDataSource(learners)
+    chart = ColumnChart(data_source, options={'title': 'Join Rate', 'legend': 'none'})
+    context = {'chart': chart}
+    return render(request, template, context)
+
+
+def centre_new_learners_in_month(centre_id, year, month):
+    centre = Centre.objects.get(pk=centre_id)
+    start_of_month = datetime.date(year=year, month=month, day=1)
+    end_of_month = start_of_month + datetime.timedelta(days=30)
+    learners = centre.learner_set.all().filter(date_joined__range=[start_of_month, end_of_month])
+    return learners
 
 
 def repopulate_db(request):
