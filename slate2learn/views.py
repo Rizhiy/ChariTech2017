@@ -17,7 +17,12 @@ def centre_view(request, pk):
     template = 'slate2learn/centre.html'
     centre = Centre.objects.get(pk=pk)
     learners = centre.learner_set.all()
-    context = {'centre': centre, 'learners': learners, 'income': centre.income()}
+    context = {'centre': centre,
+               'learners': learners,
+               'income': centre.get_income(),
+               'active_students': centre.get_active_students(),
+               'attrition': centre.get_attrition_rate(),
+               }
     return render(request, template, context)
 
 

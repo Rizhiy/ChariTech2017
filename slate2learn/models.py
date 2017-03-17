@@ -4,21 +4,40 @@ from django.db import models
 
 # Create your models here.
 from decimal import Decimal
+from . import config
 
 
 class Centre(models.Model):
     id = models.AutoField(primary_key=True)
     
-    def income(self, end_date=None, start_date=None, time_delta=datetime.timedelta(days=30)):
+    def get_income(self, end_date=None, start_date=None, time_delta=datetime.timedelta(days=config.default_period_days)):
+        """Calculates the income of a centre within the specified time period.
+        start_date trumps time_delta
+        """
         if end_date is None:
             end_date = datetime.date.today()
         if start_date is None:
             start_date = end_date - time_delta
-            
         transactions = Transaction.objects.all().filter(learner__centre__id=self.id,
-                                                  timestamp__range=['{:%Y-%m-%d}'.format(start_date), '{:%Y-%m-%d}'.format(end_date)])   
+                                                  timestamp__range=['{:%Y-%m-%d}'.format(start_date), '{:%Y-%m-%d}'.format(end_date)])  
         return sum([transaction.amount for transaction in transactions])
 
+    def get_active_students(self, end_date=None, start_date=None, time_delta=datetime.timedelta(days=config.default_period_days)):
+        if end_date is None:
+            end_date = datetime.date.today()
+        if start_date is None:
+            start_date = end_date - time_delta
+        learners = self.learner_set.all()
+        return len([learner for learner in learners if (learner.get_current_credit() > 0) and
+                                    len(learner.experience_set.all().filter(recording_time__range=['{:%Y-%m-%d}'.format(start_date), '{:%Y-%m-%d}'.format(end_date)]))>0])
+
+
+    def get_attrition_rate(self, end_date=None, time_period=datetime.timedelta(days=config.default_period_days)):
+        if end_date is None:
+            end_date = datetime.date.today()
+        return -(self.get_active_students(end_date=end_date, time_delta=time_period) -\
+                 self.get_active_students(end_date=end_date-time_period, time_delta=time_period))
+        
 
 class Learner(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -35,6 +54,10 @@ class Learner(models.Model):
     family_size = models.IntegerField(null=True)
     father_occupation = models.TextField(null=True)
     mother_occupation = models.TextField(null=True)
+
+    def get_current_credit(self):
+        transactions = Transaction.objects.all().filter(learner__id=self.id)
+        return sum([transaction.credits for transaction in transactions])
 
 
 class Experience(models.Model):
