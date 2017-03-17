@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'graphos',
+    'bootstrap3',
     'slate2learn',
 ]
 
