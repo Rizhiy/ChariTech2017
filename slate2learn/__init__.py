@@ -4,6 +4,8 @@ from pprint import pprint
 
 from chariTech.settings import BASE_DIR
 
+REPOPULATE_DATABASE = True
+
 
 def load_and_parse(filepath):
     with open(filepath, 'r') as data_file:
@@ -14,7 +16,7 @@ def load_and_parse(filepath):
     return json.loads(data)
 
 
-CONTENT = load_and_parse(os.path.join(BASE_DIR, 'slate2learn/data/json/content.json'))
+# CONTENT = load_and_parse(os.path.join(BASE_DIR, 'slate2learn/data/json/content.json'))
 EXPERIENCES = load_and_parse(os.path.join(BASE_DIR, 'slate2learn/data/json/experiences.json'))
 TRANSACTIONS = load_and_parse(os.path.join(BASE_DIR, 'slate2learn/data/json/transactions.json'))
 LEARNERS = load_and_parse(os.path.join(BASE_DIR, 'slate2learn/data/json/learners.json'))
