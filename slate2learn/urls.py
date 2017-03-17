@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import url, include
 
 from slate2learn import views
@@ -10,3 +11,9 @@ urlpatterns = [
     url(r'^centre/(?P<pk>[0-9]+)/join_rate/$', views.centre_join_rate, name='centre_join_rate'),
     url(r'^$', views.home, name="home")
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
