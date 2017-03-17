@@ -29,7 +29,7 @@ class Centre(models.Model):
         year = datetime.datetime.today().year - 1
         month = datetime.datetime.today().month
         incomes = [['Month', 'Income']]
-        for i in range(0, 12):
+        for i in range(0, 13):
             next_year = year
             if month == 12:
                 next_month = 1
@@ -38,7 +38,7 @@ class Centre(models.Model):
                 next_month = month + 1
             income = self.get_income(start_date=datetime.date(year=year, month=month, day=1),
                                      end_date=datetime.date(year=next_year, month=next_month, day=1))
-            incomes.append(["{} {}".format(calendar.month_name[month], year), income])
+            incomes.append(["{}/{}".format(month, year % 1000), income])
             year = next_year
             month = next_month
         return incomes
@@ -54,6 +54,24 @@ class Centre(models.Model):
                     len(learner.experience_set.all().filter(
                         recording_time__range=['{:%Y-%m-%d}'.format(start_date), '{:%Y-%m-%d}'.format(end_date)])) > 0])
 
+    def get_monthly_students(self):
+        year = datetime.datetime.today().year - 1
+        month = datetime.datetime.today().month
+        monthly_students = [['Month', 'Students']]
+        for i in range(0, 13):
+            next_year = year
+            if month == 12:
+                next_month = 1
+                next_year = year + 1
+            else:
+                next_month = month + 1
+            students = self.get_active_students(start_date=datetime.date(year=year, month=month, day=1),
+                                                end_date=datetime.date(year=next_year, month=next_month, day=1))
+            monthly_students.append(["{}/{}".format(month, year % 1000), students])
+            year = next_year
+            month = next_month
+        return monthly_students
+
     def num_of_students(self):
         return len(self.learner_set.all())
 
@@ -63,9 +81,25 @@ class Centre(models.Model):
     def get_attrition_rate(self, end_date=None, time_period=datetime.timedelta(days=config.default_period_days)):
         if end_date is None:
             end_date = datetime.date.today()
-        return -(self.get_active_students(end_date=end_date, time_delta=time_period) - \
+        return -(self.get_active_students(end_date=end_date, time_delta=time_period) -
                  self.get_active_students(end_date=end_date - time_period, time_delta=time_period))
 
+    def get_monthly_attrition(self):
+        year = datetime.datetime.today().year - 1
+        month = datetime.datetime.today().month
+        monthly_attrition = [['Month', 'Attrition']]
+        for i in range(0, 13):
+            next_year = year
+            if month == 12:
+                next_month = 1
+                next_year = year + 1
+            else:
+                next_month = month + 1
+            attrition = self.get_attrition_rate(end_date=datetime.date(year=next_year, month=next_month, day=1))
+            monthly_attrition.append(["{}/{}".format(month, year % 1000), attrition])
+            year = next_year
+            month = next_month
+        return monthly_attrition
 
 class Learner(models.Model):
     id = models.BigAutoField(primary_key=True)

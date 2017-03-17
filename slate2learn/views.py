@@ -25,13 +25,24 @@ def centre_view(request, pk):
     learners = centre.learner_set.all()
     monthly_income = centre.get_monthly_income()
     data_source = SimpleDataSource(monthly_income)
-    income_chart = LineChart(data_source, options={'title': 'Monthly Income', 'legend': 'none','width':'100%'})
+    income_chart = LineChart(data_source,
+                               options={'title': 'Monthly Income', 'legend': 'none', 'width': '800', 'height': '400'})
+    monthly_students = centre.get_monthly_students()
+    data_source = SimpleDataSource(monthly_students)
+    students_chart = LineChart(data_source,
+                               options={'title': 'Monthly Students', 'legend': 'none', 'width': '800', 'height': '400'})
+    monthly_attrition = centre.get_monthly_attrition()
+    data_source = SimpleDataSource(monthly_attrition)
+    attrition_chart = LineChart(data_source,
+                               options={'title': 'Monthly Attrition', 'legend': 'none', 'width': '800', 'height': '400'})
     context = {'centre': centre,
                'learners': learners,
                'income': centre.get_income(),
                'active_students': centre.get_active_students(),
                'attrition': centre.get_attrition_rate(),
-               'income_chart': income_chart
+               'income_chart': income_chart,
+               'students_chart': students_chart,
+               'attrition_chart': attrition_chart
                }
     return render(request, template, context)
 
@@ -96,3 +107,9 @@ def repopulate_db(request):
 
     messages.success(request, "DB repopulated")
     return redirect("/")
+
+def home(request):
+    template = 'slate2learn/home.html'
+    centres = Centre.objects.all()
+    context = {'centres': centres}
+    return render(request,template,context)

@@ -2,13 +2,24 @@
 
 {% block content %}
     Centre id: {{ centre.id }}
-    <dic class="income">
+    <div class="income">
         <button data-toggle="collapse" data-target="#income">Income: {{ income }}</button>
         <div id="income" class="collapse">
             {{ income_chart.as_html }}
         </div>
-    </dic>
+    </div>
 
-    Active students: {{ active_students }}
-    Attrition rate: {{ attrition }}
+    <div class="students">
+        <button data-toggle="collapse" data-target="#students">Active Students: {{ active_students }}</button>
+        <div id="students" class="collapse">
+            {{ students_chart.as_html }}
+        </div>
+    </div>
+    <div class="attrition">
+        <button data-toggle="collapse" data-target="#attrition">A Attrition rate: {{ attrition }}</button>
+        <div id="attrition" class="collapse">
+            {{ attrition_chart.as_html }}
+        </div>
+    </div>
+
 {% endblock %}
