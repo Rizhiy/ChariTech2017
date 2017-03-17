@@ -1,3 +1,5 @@
+__pycache__/
+*.pyc
 .idea
 db.sqlite3
 slate2learn/data
