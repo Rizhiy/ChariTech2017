@@ -3,7 +3,7 @@
 {% block content %}
     <ul>
     {% for centre in centres %}
-        <a href="{% url "centre" centre.id %}"> Centre {{ centre.id }}</a>
+       <li><a href="{% url "centre" centre.id %}"> Centre {{ centre.id }}</a></li>
     {% endfor %}
     </ul>
 {% endblock %}
