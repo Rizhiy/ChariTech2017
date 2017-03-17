@@ -1,0 +1,8 @@
+{% extends 'slate2learn/base.html' %}
+
+{% block content %}
+    Centre id: {{ centre.id }}
+    Learners:
+    {{ new_learners|length }}
+    {{ chart.as_html }}
+{% endblock %}

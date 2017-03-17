@@ -1,3 +1,4 @@
+import calendar
 import datetime
 
 from django.db import models
@@ -9,8 +10,9 @@ from . import config
 
 class Centre(models.Model):
     id = models.AutoField(primary_key=True)
-    
-    def get_income(self, end_date=None, start_date=None, time_delta=datetime.timedelta(days=config.default_period_days)):
+
+    def get_income(self, end_date=None, start_date=None,
+                   time_delta=datetime.timedelta(days=config.default_period_days)):
         """Calculates the income of a centre within the specified time period.
         start_date trumps time_delta
         """
@@ -19,18 +21,44 @@ class Centre(models.Model):
         if start_date is None:
             start_date = end_date - time_delta
         transactions = Transaction.objects.all().filter(learner__centre__id=self.id,
-                                                  timestamp__range=['{:%Y-%m-%d}'.format(start_date), '{:%Y-%m-%d}'.format(end_date)])  
+                                                        timestamp__range=['{:%Y-%m-%d}'.format(start_date),
+                                                                          '{:%Y-%m-%d}'.format(end_date)])
         return sum([transaction.amount for transaction in transactions])
 
-    def get_active_students(self, end_date=None, start_date=None, time_delta=datetime.timedelta(days=config.default_period_days)):
+    def get_monthly_income(self):
+        year = datetime.datetime.today().year - 1
+        month = datetime.datetime.today().month
+        incomes = [['Month', 'Income']]
+        for i in range(0, 12):
+            next_year = year
+            if month == 12:
+                next_month = 1
+                next_year = year + 1
+            else:
+                next_month = month + 1
+            income = self.get_income(start_date=datetime.date(year=year, month=month, day=1),
+                                     end_date=datetime.date(year=next_year, month=next_month, day=1))
+            incomes.append(["{} {}".format(calendar.month_name[month], year), income])
+            year = next_year
+            month = next_month
+        return incomes
+
+    def get_active_students(self, end_date=None, start_date=None,
+                            time_delta=datetime.timedelta(days=config.default_period_days)):
         if end_date is None:
             end_date = datetime.date.today()
         if start_date is None:
             start_date = end_date - time_delta
         learners = self.learner_set.all()
         return len([learner for learner in learners if (learner.get_current_credit() > 0) and
-                                    len(learner.experience_set.all().filter(recording_time__range=[start_date, end_date]))>0])
+                    len(learner.experience_set.all().filter(
+                        recording_time__range=['{:%Y-%m-%d}'.format(start_date), '{:%Y-%m-%d}'.format(end_date)])) > 0])
 
+    def num_of_students(self):
+        return len(self.learner_set.all())
+
+    def str_id(self):
+        return str(self.id)
 
     def get_attrition_rate(self, end_date=None, time_period=datetime.timedelta(days=config.default_period_days)):
         if end_date is None:
@@ -52,7 +80,6 @@ class Centre(models.Model):
         
         return sum(learners)
 
-        
 
 class Learner(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -70,6 +97,9 @@ class Learner(models.Model):
     father_occupation = models.TextField(null=True)
     mother_occupation = models.TextField(null=True)
 
+    def __str__(self):
+        return "ID: {}, Gender: {}, DoB: {}".format(self.id, self.gender, self.date_of_birth)
+
     def get_current_credit(self):
         transactions = Transaction.objects.filter(learner__id=self.id)
         return sum([transaction.credits for transaction in transactions])
@@ -85,13 +115,13 @@ class Experience(models.Model):
     latency = models.IntegerField(null=True)
     recording_time = models.DateTimeField(null=True)
 
+
 class Transaction(models.Model):
     id = models.BigAutoField(primary_key=True)
     learner = models.ForeignKey(Learner)
     timestamp = models.DateTimeField()
     amount = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.00'))
     credits = models.DecimalField(max_digits=20, decimal_places=2, )
-
 
 # class Session(models.Model):
 #     id = models.AutoField(primary_key=True)

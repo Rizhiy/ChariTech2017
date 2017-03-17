@@ -3,3 +3,4 @@ __pycache__/
 .idea
 db.sqlite3
 slate2learn/data
+db_initialise.sh
